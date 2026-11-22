@@ -1,0 +1,14 @@
+.*
+*.mat
+*.pdf
+!.gitignore
+*.fig
+*.png
+*.zip
+*.asv
+*.csv
+*.txt
+*.eps
+*.err
+*.out
+*.log
