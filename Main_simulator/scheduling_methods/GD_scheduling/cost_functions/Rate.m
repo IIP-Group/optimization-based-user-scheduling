@@ -20,23 +20,23 @@
 
 function [f_without_regularizer,grad_f_without_regularizer] = Rate(par,var,C)
 f_without_regularizer = 0;
-grad_f_without_regularizer = zeros(par.U,par.timeslots);
-for t = 1:par.timeslots
-    Hc = var.H*diag(C(:,t));
+grad_f_without_regularizer = zeros(par.U,par.frequency_slots);
+for t = 1:par.frequency_slots
+    Hc = var.H(:,:,t)*diag(C(:,t));
     L = eye(par.B)/(Hc*Hc'+(var.N0_scheduling/var.Es)*eye(par.B));
 
     L_H = zeros(par.B,par.U);
     H_L = zeros(par.U,par.B);
     for n = 1:par.U
-        L_H(:,n) = L*var.H(:,n);
-        H_L(n,:) = var.H(:,n)'*L;
+        L_H(:,n) = L*var.H(:,n,t);
+        H_L(n,:) = var.H(:,n,t)'*L;
     end
 
     % Evaluate the achievable-rate objective
     dF_rate = zeros(par.U,par.U);
     for u=1:par.U
         w_c_u = C(u,t)*(H_L(u,:)); % Equalizer vector for UE u
-        h_c_u = C(u,t)*(var.H(:,u)); % Channel vector for UE u
+        h_c_u = C(u,t)*(var.H(:,u,t)); % Channel vector for UE u
 
         d_c = (var.Es*abs(w_c_u*h_c_u)^2); % Desired-signal power
         % Interference power
@@ -44,7 +44,7 @@ for t = 1:par.timeslots
         n_c = (var.N0_scheduling*norm(w_c_u)^2); % Noise power
         % Channel-estimation error power
         e_c_1 = var.Es*(norm(w_c_u)^2);
-        e_c_2 = ones(1,par.U)*(diag(C(:,t).^2)*diag(var.covariance_channel_error))*ones(par.U,1);
+        e_c_2 = ones(1,par.U)*(diag(C(:,t).^2)*diag(var.covariance_channel_error(:,t)))*ones(par.U,1);
         e_c = e_c_1*e_c_2;
 
         SINR_u = d_c/(i_c+n_c+e_c);
@@ -56,7 +56,7 @@ for t = 1:par.timeslots
             % Compute the objective gradient
             switch(var.calc_grad)
                 case 'yes'
-                    h_L_h = (var.H(:,u)'*L_H(:,u));
+                    h_L_h = (var.H(:,u,t)'*L_H(:,u));
 
                     grad_interference = zeros(par.U,1);
                     grad_desired_signal = zeros(par.U,1);
@@ -75,9 +75,9 @@ for t = 1:par.timeslots
                             % First channel-estimation-error gradient term
                             grad_est_1(j) = e_1_u;
                         else
-                            grad_desired_signal(j) = -4*var.Es*C(u,t)^4*C(j,t)*h_L_h*(var.H(:,j)'*L_H(:,u)*(var.H(:,u)'*L_H(:,j)));
-                            factor_2 = -2*C(u,t)^2*C(j,t)*(H_L(j,:)*L_H(:,u)*(var.H(:,u)'*L_H(:,j))...
-                                +H_L(u,:)*L_H(:,j)*(var.H(:,j)'*L_H(:,u)));
+                            grad_desired_signal(j) = -4*var.Es*C(u,t)^4*C(j,t)*h_L_h*(var.H(:,j,t)'*L_H(:,u)*(var.H(:,u,t)'*L_H(:,j)));
+                            factor_2 = -2*C(u,t)^2*C(j,t)*(H_L(j,:)*L_H(:,u)*(var.H(:,u,t)'*L_H(:,j))...
+                                +H_L(u,:)*L_H(:,j)*(var.H(:,j,t)'*L_H(:,u)));
                             grad_noise(j) = var.N0_scheduling*factor_2;
                             % First channel-estimation-error gradient term
                             grad_est_1(j) = var.Es*factor_2;
@@ -86,21 +86,21 @@ for t = 1:par.timeslots
                         for i=1:par.U
                             if(i ~= u)
                                 if(j == u)
-                                    interf = interf+2*C(u,t)*C(i,t)^2*(var.H(:,i)'*L_H(:,u)*(var.H(:,u)'*L_H(:,i))...
-                                        -2*C(u,t)^2*var.H(:,i)'*L_H(:,u)*h_L_h*(var.H(:,u)'*L_H(:,i)));
+                                    interf = interf+2*C(u,t)*C(i,t)^2*(var.H(:,i,t)'*L_H(:,u)*(var.H(:,u,t)'*L_H(:,i))...
+                                        -2*C(u,t)^2*var.H(:,i,t)'*L_H(:,u)*h_L_h*(var.H(:,u,t)'*L_H(:,i)));
                                 elseif(j == i)
-                                    interf = interf+2*C(i,t)*C(u,t)^2*(var.H(:,i)'*L_H(:,u)*(var.H(:,u)'*L_H(:,i))...
-                                        -2*C(i,t)^2*(var.H(:,u)'*L_H(:,i))*(var.H(:,i)'*L_H(:,i))*var.H(:,i)'*L_H(:,u));
+                                    interf = interf+2*C(i,t)*C(u,t)^2*(var.H(:,i,t)'*L_H(:,u)*(var.H(:,u,t)'*L_H(:,i))...
+                                        -2*C(i,t)^2*(var.H(:,u,t)'*L_H(:,i))*(var.H(:,i,t)'*L_H(:,i))*var.H(:,i,t)'*L_H(:,u));
                                 else
-                                    interf = interf-2*C(u,t)^2*C(i,t)^2*C(j,t)*(var.H(:,i)'*L_H(:,j)*(var.H(:,j)'*L_H(:,u))*(var.H(:,u)'*L_H(:,i))...
-                                        +var.H(:,i)'*L_H(:,u)*(var.H(:,u)'*L_H(:,j))*(var.H(:,j)'*L_H(:,i)));
+                                    interf = interf-2*C(u,t)^2*C(i,t)^2*C(j,t)*(var.H(:,i,t)'*L_H(:,j)*(var.H(:,j,t)'*L_H(:,u))*(var.H(:,u,t)'*L_H(:,i))...
+                                        +var.H(:,i,t)'*L_H(:,u)*(var.H(:,u,t)'*L_H(:,j))*(var.H(:,j,t)'*L_H(:,i)));
                                 end
                             end
                         end
                         grad_interference(j) = var.Es*interf;
                     end
                     % Second channel-estimation-error gradient term
-                    grad_est_2 = 2.*C(:,t).*var.covariance_channel_error;
+                    grad_est_2 = 2.*C(:,t).*var.covariance_channel_error(:,t);
                     % Apply the product rule
                     % Channel-estimation-error gradient
                     grad_ch_error= grad_est_1.*e_c_2+e_c_1.*grad_est_2;

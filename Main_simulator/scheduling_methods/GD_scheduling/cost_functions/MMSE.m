@@ -21,9 +21,9 @@
 function [f_without_regularizer,grad_f_without_regularizer] = MMSE(par,var,C)
 
 f_without_regularizer = 0;
-grad_f_without_regularizer = zeros(par.U,par.timeslots);
-for t = 1:par.timeslots
-    Hc = var.H*diag(C(:,t));
+grad_f_without_regularizer = zeros(par.U,par.frequency_slots);
+for t = 1:par.frequency_slots
+    Hc = var.H(:,:,t)*diag(C(:,t));
     L = eye(par.B)/(Hc*Hc'+(var.N0_scheduling/var.Es)*eye(par.B));
     M = Hc*diag(C(:,t).^2)*Hc';
 
@@ -32,11 +32,11 @@ for t = 1:par.timeslots
     switch(var.calc_grad)
         case 'yes'
             for u=1:par.U
-                L_H = L*var.H(:,u);
-                H_L = var.H(:,u)'*L;
+                L_H = L*var.H(:,u,t);
+                H_L = var.H(:,u,t)'*L;
                 H_L_M = H_L*M;
                 % Gradient of the unregularized objective
-                grad_f_without_regularizer(u,t) = var.Es*(2*C(u,t)+2*C(u,t)*H_L_M*L_H-4*C(u,t)^3*var.H(:,u)'*L_H);
+                grad_f_without_regularizer(u,t) = var.Es*(2*C(u,t)+2*C(u,t)*H_L_M*L_H-4*C(u,t)^3*var.H(:,u,t)'*L_H);
             end
     end
 

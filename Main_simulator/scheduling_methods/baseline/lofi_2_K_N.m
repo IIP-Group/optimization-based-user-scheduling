@@ -21,7 +21,7 @@ function [C_chosen] = lofi_2_K_N(par,var,num_restarts)
 
 snr_min_ar = zeros(num_restarts*2,1);
 
-C_matrix = zeros(par.U,par.timeslots,2*num_restarts);
+C_matrix = zeros(par.U,par.frequency_slots,2*num_restarts);
 
 for i=1:num_restarts
     % Generate one candidate per random restart

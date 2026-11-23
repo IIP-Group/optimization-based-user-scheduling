@@ -2,8 +2,8 @@
 % -- Channel Realization Loader
 % -------------------------------------------------------------------------
 % Description:
-%   Load a channel realization, apply power control, and form the effective
-%   channel used by the simulator.
+%   Load a frequency-selective channel realization, apply power control
+%   independently to each frequency slot, and form the effective channel.
 %
 % Input:
 %   par: Simulation parameter structure.
@@ -18,37 +18,38 @@
 
 function [var] = gen_channel(par,var)
 
-%% Load channel realization
-FileLoad=['/path/to/channel/',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'/channels_',...
-    par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_',num2str(var.ch),'.mat'];
+%% Load frequency-selective channel realization
+FileLoad=['/path/to/channel/',par.system_type,'_',num2str(par.B),'_',...
+    num2str(par.U),'_QuadMMLoS_100MHz/channels_',par.system_type,'_',...
+    num2str(par.B),'_',num2str(par.U),'_freq_sch_',num2str(var.ch),'.mat'];
 load (FileLoad,'H');
 
-var.G = H(:,1:par.U);
+for s=1:par.frequency_slots
+    var.G(:,:,s) = H(:,1:par.U,s);
 
-% Apply power control
-switch(par.pwr_cntrl)
-    case 'on' % Power control enabled
-        % Squared L2 norm of each channel vector
-        gpwr= sum(abs(var.G).^2,1);
-        gmin = min(gpwr); % Minimum channel-vector power
-        p = 10^(par.P_db/10);
-        lambda = min([gpwr;gmin*p*ones(size(gpwr))])./gpwr;
-        Lambda_vector = sqrt(lambda);
-    otherwise
-        Lambda_vector = ones(par.U,1);
+    % Apply power control independently to each frequency slot
+    switch(par.pwr_cntrl)
+        case 'on'
+            gpwr = sum(abs(var.G(:,:,s)).^2,1);
+            gmin = min(gpwr);
+            pwr_ratio = 10^(par.P_db/10);
+            lambda = min([gpwr;gmin*pwr_ratio*ones(size(gpwr))])./gpwr;
+            Lambda_vector = sqrt(lambda);
+        otherwise
+            Lambda_vector = ones(par.U,1);
+    end
+
+    switch (par.plot_type)
+        case 'CDF'
+            var.H(:,:,s) = sqrt(par.rho_u)*var.G(:,:,s)*diag(Lambda_vector);
+        case 'SNR'
+            var.H(:,:,s) = var.G(:,:,s)*diag(Lambda_vector);
+    end
+
+    % Compute the receive-power dynamic range
+    gpwr = sum(abs(var.H(:,:,s)).^2,1);
+    gpwr_db = 10.*log10(gpwr);
+    dynamic_range = max(gpwr_db)-min(gpwr_db);
 end
-
-switch (par.plot_type)
-    case 'CDF'
-        % Form the effective channel after power control
-        var.H = sqrt(par.rho_u)*var.G*diag(Lambda_vector);
-    case 'SNR'
-        var.H = var.G*diag(Lambda_vector);
-end
-
-% Compute the receive-power dynamic range
-gpwr= sum(abs(var.H).^2,1);
-gpwr_db = 10.*log10(gpwr); % [dB]
-dynamic_range = max(gpwr_db)-min(gpwr_db); % [dB]
 
 end

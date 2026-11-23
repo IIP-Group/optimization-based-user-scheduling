@@ -32,7 +32,7 @@ end
 
 % Locate result files for all simulation jobs
 for i=1:length(index_process)
-    file_name = [path,['USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.timeslots),'_',num2str(index_process(i)),'.mat']];
+    file_name = [path,['USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.frequency_slots),'_',num2str(index_process(i)),'.mat']];
     file{i} = file_name;
 end
 
@@ -57,5 +57,5 @@ for i=1:length(par.scheduling_chosen)
     res.average_SNR{ind} = mean(res.average_SNR_per_timeslot{ind});
 end
 
-FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.timeslots),'_SNR.mat'];
+FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.frequency_slots),'_SNR.mat'];
 save (FileName);

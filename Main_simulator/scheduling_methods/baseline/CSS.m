@@ -24,28 +24,27 @@ A = zeros(par.B); % Normalize each DFT column
 for i=1:par.B
     A(:,i) = A_0(:,i)/norm(A_0(:,i));
 end
-H_b = A*var.H; % Beam-domain channel matrix
-
 L = 4;
 Nb = 2*L;
 Ns = par.Us;
 
-% Identify dominant beam support for each UE
-[~, temp] = sort(H_b,'descend');
-Bk = Nb+1 > temp; % Select the Nb strongest beam indices
-idx = Bk == 1; % Record the selected beam support
-Bk = rand(size(H_b));
-Bk(idx) = 0;
 Hbeam = [];
 
 % Initialize the candidate UE set
 U_group = 1:par.U;
 
-order = zeros(par.Us,par.timeslots);
-order_asc = zeros(par.Us,par.timeslots);
-C_matrix = zeros(par.U,par.timeslots);
+order = zeros(par.Us,par.frequency_slots);
+order_asc = zeros(par.Us,par.frequency_slots);
+C_matrix = zeros(par.U,par.frequency_slots);
 
-for t=1:par.timeslots
+for t=1:par.frequency_slots
+    H_b = A*var.H(:,:,t); % Beam-domain channel matrix
+    [~, temp] = sort(H_b,'descend');
+    Bk = Nb+1 > temp; % Select the Nb strongest beam indices
+    idx = Bk == 1; % Record the selected beam support
+    Bk = rand(size(H_b));
+    Bk(idx) = 0;
+
     epsilon = 0.3;
     Nol = 2;
 

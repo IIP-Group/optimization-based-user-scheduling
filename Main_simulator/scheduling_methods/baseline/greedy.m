@@ -24,15 +24,14 @@ A = zeros(par.B); % Normalize each DFT column
 for i=1:par.B
     A(:,i) = A_0(:,i)/norm(A_0(:,i));
 end
-H_b = A*var.H; % Beam-domain channel matrix
-
 % Initialize the candidate UE set
 U_group = 1:par.U;
-order = zeros(par.Us,par.timeslots);
-order_asc = zeros(par.Us,par.timeslots);
-C_matrix = zeros(par.U,par.timeslots);
+order = zeros(par.Us,par.frequency_slots);
+order_asc = zeros(par.Us,par.frequency_slots);
+C_matrix = zeros(par.U,par.frequency_slots);
 
-for t=1:par.timeslots
+for t=1:par.frequency_slots
+    H_b = A*var.H(:,:,t); % Beam-domain channel matrix
     i=1;
     H_gre = [];
     while (i<=par.Us)

@@ -19,18 +19,18 @@
 
 function [C_matrix,sum_MSE] = random_assignment(par,var)
 
-C_matrix = zeros(par.U,par.timeslots);
+C_matrix = zeros(par.U,par.frequency_slots);
 
-for i=1:par.timeslots
+for i=1:par.frequency_slots
     for j=1:par.Us
         C_matrix((i-1)*par.Us+j,i) = 1;
     end
 end
 
-MSE = zeros(par.timeslots,1);
-for t=1:par.timeslots
+MSE = zeros(par.frequency_slots,1);
+for t=1:par.frequency_slots
     C = C_matrix(:,t);
-    Hc = var.H*diag(C);
+    Hc = var.H(:,:,t)*diag(C);
     L = eye(par.B)/(Hc*Hc'+(var.N0_scheduling/var.Es)*eye(par.B));
     M = Hc*diag(C.^2)*Hc';
     MSE(t) = var.Es*trace(diag(C.^2))-var.Es*trace(L*M);

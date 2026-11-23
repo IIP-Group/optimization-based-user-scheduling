@@ -23,11 +23,11 @@ Ns = par.Us;
 % Initialize the candidate UE set
 U_group = 1:par.U;
 
-order = zeros(par.Us,par.timeslots);
-order_asc = zeros(par.Us,par.timeslots);
-C_matrix = zeros(par.U,par.timeslots);
+order = zeros(par.Us,par.frequency_slots);
+order_asc = zeros(par.Us,par.frequency_slots);
+C_matrix = zeros(par.U,par.frequency_slots);
 
-for t=1:par.timeslots
+for t=1:par.frequency_slots
     epsilon = 0.5;
 
     while (nnz(order(:,t)) < Ns)
@@ -50,7 +50,7 @@ for t=1:par.timeslots
                     temp = temp + (g_0(:,j)*g_0(:,j)')/norm(g_0(:,j))^2;
                 end
 
-                g(:,k) = (eye(par.B)-temp) * var.H(:,U_group_temp(k));
+                g(:,k) = (eye(par.B)-temp) * var.H(:,U_group_temp(k),t);
                 g_norm(k) = norm(g(:,k));
 
             end
@@ -58,14 +58,14 @@ for t=1:par.timeslots
             [~,sel] = max(g_norm);
             order(i,t) = U_group_temp(sel);
 
-            H_sus = [H_sus var.H(:,U_group_temp(sel))];
+            H_sus = [H_sus var.H(:,U_group_temp(sel),t)];
             g_0 = [g_0 g(:,sel)];
 
             % Prune UEs that are insufficiently semi-orthogonal
             U_group_temp(sel) = [];
             temp = [];
             for j = 1:length(U_group_temp)
-                if abs(var.H(:,U_group_temp(j))'*g_0(:,i))/(norm(var.H(:,U_group_temp(j)))*norm(g_0(:,i))) < epsilon
+                if abs(var.H(:,U_group_temp(j),t)'*g_0(:,i))/(norm(var.H(:,U_group_temp(j),t))*norm(g_0(:,i))) < epsilon
                     temp = [temp U_group_temp(j)];
                 end
 

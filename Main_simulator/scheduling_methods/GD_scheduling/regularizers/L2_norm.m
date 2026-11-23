@@ -21,8 +21,8 @@
 function [regularization,grad_regularization] = L2_norm(par,var,C)
 
 regularization = 0;
-grad_regularization = zeros(par.U,par.timeslots);
-for t = 1:par.timeslots
+grad_regularization = zeros(par.U,par.frequency_slots);
+for t = 1:par.frequency_slots
     regularization = regularization+(var.lambda*norm(C(:,t)-(0.5.*ones(par.U,1)),'fro')^2);
 
     switch(var.calc_grad)

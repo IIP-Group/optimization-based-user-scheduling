@@ -30,10 +30,10 @@ if(status ~= 1)
     f_vec = [];
 
     %% Enforce lower-bound constraints
-    C_quant = zeros(par.U,par.timeslots);
+    C_quant = zeros(par.U,par.frequency_slots);
     % Greedily satisfy the lower-bound constraints
     U_set = 1:par.U;
-    for t = 1:par.timeslots
+    for t = 1:par.frequency_slots
         % Select the largest U_min entries among the available UEs.
         [~,idx_max] = maxk(C(U_set,t),par.min_sum_columns);
         C_quant(U_set(idx_max),t) = 1; % Activate the selected UEs
@@ -55,7 +55,7 @@ if(status ~= 1)
     extra_users_per_timeslot = par.max_sum_columns-par.min_sum_columns;
 
     U_set = 1:par.U;
-    for t = 1:par.timeslots
+    for t = 1:par.frequency_slots
         % UEs not yet assigned to time slot t
         users_not_chosen = find(C_quant(:,t) == 0);
         idx_intersection = intersect(U_set.',users_not_chosen);

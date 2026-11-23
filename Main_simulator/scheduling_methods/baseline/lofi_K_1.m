@@ -21,7 +21,7 @@ function [C_chosen] = lofi_K_1(par,var)
 % Generate a schedule over all time slots
 num_restarts = 2;
 
-C_matrix = zeros(par.U,par.timeslots,num_restarts);
+C_matrix = zeros(par.U,par.frequency_slots,num_restarts);
 SINR_u = zeros(par.U,num_restarts);
 min_candidate = zeros(num_restarts,1);
 
@@ -30,21 +30,21 @@ for s=1:num_restarts
     all_users = 1:par.U;
     remaining_users_ = all_users;
 
-    for t = 1:par.timeslots
+    for t = 1:par.frequency_slots
         chosen_ues = randsample(remaining_users_, par.Us);
         C_matrix(chosen_ues, t, s) = 1;
         remaining_users_(ismember(remaining_users_, chosen_ues)) = [];
     end
 
-    for t=1:par.timeslots
-        Hc = var.H*diag(C_matrix(:,t,s));
+    for t=1:par.frequency_slots
+        Hc = var.H(:,:,t)*diag(C_matrix(:,t,s));
         L = inv(Hc*Hc'+(var.N0_scheduling/var.Es)*eye(par.B));
 
         L_H = zeros(par.B,par.U);
         H_L = zeros(par.U,par.B);
         for n = 1:par.U
-            L_H(:,n) = L*var.H(:,n);
-            H_L(n,:) = var.H(:,n)'*L;
+            L_H(:,n) = L*var.H(:,n,t);
+            H_L(n,:) = var.H(:,n,t)'*L;
         end
 
         idx = find(C_matrix(:,t,s) == 1);
@@ -52,7 +52,7 @@ for s=1:num_restarts
             % Equalizer vector for UE u
             w_c_u = C_matrix(idx(u),t,s)*(H_L(idx(u),:));
             % Channel vector for UE u
-            h_c_u = C_matrix(idx(u),t,s)*(var.H(:,idx(u)));
+            h_c_u = C_matrix(idx(u),t,s)*(var.H(:,idx(u),t));
 
             d_c = (var.Es*abs(w_c_u*h_c_u)^2); % Desired-signal power
             % Interference power

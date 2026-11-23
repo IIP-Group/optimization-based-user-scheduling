@@ -22,7 +22,7 @@ function [best_C,best_measure] = exhaustive_search(par,var)
 combos = nchoosek(1:par.U,par.Us);
 vec_k = 1:par.U;
 [var.num_poss,~] = size(combos);
-C_matrix = zeros(par.U,par.timeslots,var.num_poss);
+C_matrix = zeros(par.U,par.frequency_slots,var.num_poss);
 
 for i=1:par.U
     for j=1:var.num_poss
@@ -31,11 +31,11 @@ for i=1:par.U
     end
 end
 
-measure = zeros(par.timeslots,var.num_poss);
+measure = zeros(par.frequency_slots,var.num_poss);
 sum_measure = zeros(var.num_poss,1);
 
 for n=1:var.num_poss
-    for t=1:par.timeslots
+    for t=1:par.frequency_slots
         C = C_matrix(:,t,n);
         Hc = var.H*diag(C);
         switch(var.scheduling_method)

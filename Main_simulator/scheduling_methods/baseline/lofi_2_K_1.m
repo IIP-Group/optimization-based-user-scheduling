@@ -18,7 +18,7 @@
 
 function [C_chosen] = lofi_2_K_1(par,var)
 
-C_matrix = zeros(par.U,par.timeslots,2);
+C_matrix = zeros(par.U,par.frequency_slots,2);
 
 % Generate one random candidate schedule
 chosen_ues_1 = randsample(par.U, par.Us).';

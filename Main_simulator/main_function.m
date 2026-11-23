@@ -83,15 +83,18 @@ end
 % Estimate the channel
 switch(par.channel_estimation)
     case 'BEACHES'
-        N0_est = var.N0_training/(par.U*var.Es);
-        channel_noise = (randn(par.B,par.U)+1i*randn(par.B,par.U));
-        Hnoisy = var.H + channel_noise*sqrt(N0_est/2);
-        % Estimate the channel using BEACHES
-        [Hest,~,var.MSE] = BEACHES(par,Hnoisy,N0_est,'antenna_domain');
-        % Use the estimated channel for scheduling and detection
-        var.H = Hest;
-        var.H_error = var.H-var.H_full_CSI; % Channel-estimation error
-        var.covariance_channel_error = var.MSE;
+        for t=1:par.frequency_slots
+            N0_est = var.N0_training/(par.U*var.Es);
+            channel_noise = (randn(par.B,par.U)+1i*randn(par.B,par.U));
+            Hnoisy = var.H(:,:,t) + channel_noise*sqrt(N0_est/2);
+            % Estimate each frequency-slot channel using BEACHES
+            [Hest,~,var.MSE(:,t)] = ...
+                BEACHES(par,Hnoisy,N0_est,'antenna_domain');
+            var.H(:,:,t) = Hest;
+            var.H_error(:,:,t) = ...
+                var.H(:,:,t)-var.H_full_CSI(:,:,t);
+            var.covariance_channel_error(:,t) = var.MSE(:,t);
+        end
     case 'LS' % Least-squares channel estimation
         par.pilot_length = par.U;
         S = hadamard(par.pilot_length);
@@ -123,7 +126,7 @@ switch (var.scheduling_method)
             [C_es,best_result] = exhaustive_search(par,var);
             C = C_es(:,:,1);
             otherwise
-            C = zeros(par.U,par.timeslots);
+            C = zeros(par.U,par.frequency_slots);
             best_result = 0;
         end
     case {'MMSE','Capacity','Rate'}
@@ -146,7 +149,7 @@ switch (var.scheduling_method)
         C = C_greedy;
     case 'No Scheduling'
         % AUA: all-user assignment without scheduling
-        C = ones(par.U,par.timeslots);
+        C = ones(par.U,par.frequency_slots);
     case "LoFi (K=1)"
         % LoFi (K=1)
         [C_lofi_K_1] = lofi_K_1(par,var);
@@ -175,25 +178,25 @@ rng(1000*index + 0, 'twister');
 
 % Generate random transmitted bits
 % One symbol vector per trial and time slot
-var.fixed_bits = randi([0 1],par.U,var.Q,par.timeslots,par.trials);
+var.fixed_bits = randi([0 1],par.U,var.Q,par.frequency_slots,par.trials);
 
 % Initialize result arrays
-SNR_dB = zeros(par.timeslots,1);
-ber = zeros(par.U,par.timeslots,par.trials);
-mse = zeros(par.U,par.timeslots,par.trials);
-SINR = zeros(par.U,par.timeslots);
-achievable_rate = zeros(par.U,par.timeslots);
-capacity = zeros(par.timeslots,1);
+SNR_dB = zeros(par.frequency_slots,1);
+ber = zeros(par.U,par.frequency_slots,par.trials);
+mse = zeros(par.U,par.frequency_slots,par.trials);
+SINR = zeros(par.U,par.frequency_slots);
+achievable_rate = zeros(par.U,par.frequency_slots);
+capacity = zeros(par.frequency_slots,1);
 
-s_schedule = zeros(par.U,par.timeslots,par.trials);
+s_schedule = zeros(par.U,par.frequency_slots,par.trials);
 possible_values = [0,1]; % Binary alphabet
 count_b_b_hat = zeros(length(possible_values),length(possible_values),var.Q,par.U);
 
-for t=1:par.timeslots
+for t=1:par.frequency_slots
     Dc = diag(C(:,t));
-    Hc_est = var.H*Dc; % Scheduled estimated channel
-    Hc_real = var.H_full_CSI*Dc; % Scheduled true channel
-    Hc_error = var.H_error*Dc;
+    Hc_est = var.H(:,:,t)*Dc; % Scheduled estimated channel
+    Hc_real = var.H_full_CSI(:,:,t)*Dc; % Scheduled true channel
+    Hc_error = var.H_error(:,:,t)*Dc;
 
     % Configure the detection-noise variance
     switch (par.plot_type)
@@ -370,7 +373,7 @@ index_process = ((scheduler_idx-1)*(length(par.SNRdB_list)*par.channels)+index)-
 
 path_to_save = (['/path/to/results/']);
 
-FileName=[path_to_save,'USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.timeslots),'_',num2str(index_process),'.mat'];
+FileName=[path_to_save,'USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.frequency_slots),'_',num2str(index_process),'.mat'];
 save (FileName,'results');
 
 switch (var.scheduling_method)

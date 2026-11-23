@@ -32,12 +32,12 @@ end
 
 % Locate result files for all simulation jobs
 for i=1:length(index_process)
-    file_name = [path,['USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.timeslots),'_',num2str(index_process(i)),'.mat']];
+    file_name = [path,['USER_SCHEDULING_',par.system_type,'_',num2str(par.B),'_',num2str(par.U),'_T_',num2str(par.frequency_slots),'_',num2str(index_process(i)),'.mat']];
     file{i} = file_name;
 end
 
 res.H = zeros(par.B,par.U,par.total_jobs);
-res.C = zeros(par.U,par.timeslots,par.total_jobs);
+res.C = zeros(par.U,par.frequency_slots,par.total_jobs);
 
 res.BER_per_user = cell(length(par.scheduling_options),1);
 res.MI_per_user = cell(length(par.scheduling_options),1);
@@ -82,8 +82,8 @@ for n_proc=1:length(index_process)
 end
 
 for i=1:length(res.rate_per_user)
-    res.rate_per_user{i} = res.rate_per_user{i}./par.timeslots;
-    res.SINR_per_user{i} = res.SINR_per_user{i}./par.timeslots;
+    res.rate_per_user{i} = res.rate_per_user{i}./par.frequency_slots;
+    res.SINR_per_user{i} = res.SINR_per_user{i}./par.frequency_slots;
 end
 
 FileName=['Intermediate_file.mat'];
@@ -238,7 +238,7 @@ savefig(h,[my_path '/figures/' 'Rate_CCDF_' file_title])
 saveas(h,[my_path '/figures/' 'Rate_CCDF_' file_title,'.pdf'])
 clear('h');
 
-FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.timeslots),'.mat'];
+FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.frequency_slots),'.mat'];
 save (FileName);
 
 get_90_percent_point(my_path,par,file_title);

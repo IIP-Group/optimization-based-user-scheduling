@@ -36,7 +36,7 @@ switch(par.sim_scenario)
         % System parameters
         par.B = 16; % Number of receive antennas
         par.U = 16; % Number of UEs
-        par.timeslots = 2; % Number of time slots
+        par.frequency_slots = 2; % Number of frequency slots
         par.min_sum_columns = 8; % U_min
         par.max_sum_columns = 10; % U_max
         par.min_sum_rows = 1; % T_min
@@ -47,7 +47,7 @@ switch(par.sim_scenario)
         % System parameters
         par.B = 32; % Number of receive antennas
         par.U = 32; % Number of UEs
-        par.timeslots = 2; % Number of time slots
+        par.frequency_slots = 2; % Number of frequency slots
         par.min_sum_columns = 16; % U_min
         par.max_sum_columns = 20; % U_max
         par.min_sum_rows = 1; % T_min
@@ -58,7 +58,7 @@ switch(par.sim_scenario)
         % System parameters
         par.B = 32; % Number of receive antennas
         par.U = 64; % Number of UEs
-        par.timeslots = 4; % Number of time slots
+        par.frequency_slots = 4; % Number of frequency slots
         par.min_sum_columns = 16; % U_min
         par.max_sum_columns = 20; % U_max
         par.min_sum_rows = 1; % T_min
@@ -69,7 +69,7 @@ switch(par.sim_scenario)
         % System parameters
         par.B = 32; % Number of receive antennas
         par.U = 64; % Number of UEs
-        par.timeslots = 8; % Number of time slots
+        par.frequency_slots = 8; % Number of frequency slots
         par.min_sum_columns = 8; % U_min
         par.max_sum_columns = 10; % U_max
         par.min_sum_rows = 1; % T_min

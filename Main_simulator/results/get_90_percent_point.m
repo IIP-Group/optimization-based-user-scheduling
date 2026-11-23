@@ -82,7 +82,7 @@ for i=1:length(types)
     x_90_percent{i} = flip(real(x_interest_transform));
 end
 
-FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.timeslots),'_90_percentile.mat'];
+FileName=[datestr(now, 'yyyy_mmm_dd'),'_USER_SCHEDULING_',num2str(par.B),'_',num2str(par.U),'_',num2str(par.frequency_slots),'_90_percentile.mat'];
 save (FileName,'x_90_percent');
 close all;
 

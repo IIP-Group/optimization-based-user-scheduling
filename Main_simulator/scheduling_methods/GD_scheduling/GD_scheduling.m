@@ -31,11 +31,11 @@ var = param_optimization(var,par);
 
 % Initialize arrays for all random initializations
 % Continuous scheduling matrices
-C = zeros(par.U,par.timeslots,var.grad_iterations,var.num_initializations);
+C = zeros(par.U,par.frequency_slots,var.grad_iterations,var.num_initializations);
 % Final continuous schedules
-C_final = zeros(par.U,par.timeslots,var.num_initializations);
+C_final = zeros(par.U,par.frequency_slots,var.num_initializations);
 % Final quantized schedules
-C_final_quantized = zeros(par.U,par.timeslots,var.num_initializations);
+C_final_quantized = zeros(par.U,par.frequency_slots,var.num_initializations);
 % Regularized objective values
 f_with_regularizer = zeros(var.grad_iterations,var.num_initializations);
 % Unregularized objective values
@@ -44,7 +44,7 @@ f_without_regularizer = zeros(var.grad_iterations,var.num_initializations);
 f_with_regularizer_quant_final = zeros(var.num_initializations,1);
 % Final unregularized objective values
 f_without_regularizer_quant_final = zeros(var.num_initializations,1);
-gradient_f_with_regularizer = zeros(par.U,par.timeslots,var.grad_iterations,var.num_initializations);
+gradient_f_with_regularizer = zeros(par.U,par.frequency_slots,var.grad_iterations,var.num_initializations);
 
 
 status_C = zeros(var.num_initializations,1);
@@ -58,7 +58,7 @@ while(sum(status_C) == 0)
             tau(:,l) = var.tau*ones(var.grad_iterations,1);
         end
         % Random schedule initialization
-        C(:,:,1,l) = rand(par.U,par.timeslots);
+        C(:,:,1,l) = rand(par.U,par.frequency_slots);
         % Project onto the scheduling constraints
         [C(:,:,1,l)] = ProjMatrix(par,C(:,:,1,l));
 
