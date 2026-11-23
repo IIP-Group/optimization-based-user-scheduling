@@ -2,7 +2,7 @@
 
 MATLAB simulation code for the numerical experiments in:
 
-> V. Palhares and C. Studer, **"An Optimization-Based User Scheduling Framework for Multiuser MIMO Systems,"** *IEEE Trans. Wireless Commun.*, 2026, doi: [10.1109/TWC.2026.3754543](https://doi.org/10.1109/TWC.2026.3754543).
+> V. Palhares and C. Studer, **"An Optimization-Based User Scheduling Framework for Multiuser MIMO Systems,"** *IEEE Trans. Wireless Commun.*, Nov. 2026, doi: [10.1109/TWC.2026.3754543](https://doi.org/10.1109/TWC.2026.3754543).
 
 The simulator evaluates optimization-based user scheduling together with the baseline scheduling methods used in the paper for centralized millimeter-wave (mmWave) massive MU-MIMO and sub-6-GHz cell-free massive MU-MIMO systems.
 
