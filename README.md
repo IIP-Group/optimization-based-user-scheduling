@@ -147,7 +147,7 @@ Channel and result MAT files are intentionally not tracked by Git.
 Start MATLAB from the repository root and add this branch's simulator to the MATLAB path:
 
 ```matlab
-addpath(genpath(fullfile(pwd,'Main_simulator')),'-begin');
+addpath(genpath(fullfile(pwd,'Main_simulator')));
 ```
 
 Then move to the frequency-selective experiment directory:
