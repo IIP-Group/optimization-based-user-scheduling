@@ -1,14 +1,31 @@
-.*
+# MATLAB generated data and figures
 *.mat
-*.pdf
-!.gitignore
 *.fig
-*.png
-*.zip
-*.asv
-*.csv
-*.txt
+*.pdf
 *.eps
+*.png
+*.csv
+*.npy
+*.pickle
+
+# MATLAB temporary and autosave files
+*.asv
+*.m~
+
+# Simulation logs and batch outputs
+*.log
 *.err
 *.out
-*.log
+
+# Archives and local build/deployment artifacts
+*.zip
+main_sim_code
+
+# Generated figure directories
+figures/
+
+# OS/editor metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
